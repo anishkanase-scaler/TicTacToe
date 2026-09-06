@@ -12,7 +12,7 @@ frontend/                             React app (Vite)
 
 ## Running it
 
-You need two terminals.
+Run both at once with `./run.sh`, or start them separately in two terminals.
 
 ### 1. Backend (port 8080)
 
@@ -24,7 +24,7 @@ It uses an in-memory H2 database, so there is nothing to install or set up.
 Games are lost when the server restarts. To use Postgres instead, see the
 commented-out lines in `src/main/resources/application.properties`.
 
-### 2. Frontend (port 5173)
+### 2. Frontend (port 3000)
 
 ```bash
 cd frontend
@@ -32,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:5173
+Then open http://localhost:3000
 
 ## API
 
