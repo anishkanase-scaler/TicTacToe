@@ -15,6 +15,7 @@ import java.util.UUID;
 @Setter
 public class Game {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column
@@ -39,6 +40,7 @@ public class Game {
     private Instant updatedAt;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private GameStatus gameStatus;
 
     public Game() {}
@@ -53,6 +55,12 @@ public class Game {
     @PrePersist
     public void onCreate() {
         this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = Instant.now();
     }
 
     @Transient
