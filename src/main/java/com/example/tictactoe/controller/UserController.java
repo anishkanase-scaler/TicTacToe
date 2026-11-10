@@ -1,6 +1,7 @@
 package com.example.tictactoe.controller;
 
 import com.example.tictactoe.dto.UserRequestDTO;
+import com.example.tictactoe.dto.UserResponseDTO;
 import com.example.tictactoe.model.User;
 import com.example.tictactoe.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class UserController {
     // RestController is Controller + Response Body, so we will return everything in form of JSON,
     // therefore return type is ResponseEntity<Entity>, which will convert Entity to JSON.
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> signUp(UserRequestDTO userRequestDTO) {
         try {
             // ResponseEntity<?>, we wrote ?, because in case if we get an exception from the service, then we won't be
             // able to return the UUID, in that case we will return a message.
@@ -40,9 +41,11 @@ public class UserController {
             // status is used when we create something(201), and ok is used when we have to just return success(200).
 
             UUID token = userService.signUp(userRequestDTO.name(), userRequestDTO.email(), userRequestDTO.password());
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("token", token));
+            UserResponseDTO userResponseDTO = new UserResponseDTO(token, null);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            UserResponseDTO userResponseDTO = new UserResponseDTO(null, e.getMessage());
+            return ResponseEntity.badRequest().body(userResponseDTO);
         }
     }
 
@@ -52,12 +55,17 @@ public class UserController {
     //    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> login(UserRequestDTO userRequestDTO) {
         try {
-            UUID token = userService.login(userRequestDTO.email(), userRequestDTO.password());
-            return ResponseEntity.ok(Map.of("token", token));
+            UUID token = userService.login(userRequestDTO.email(), null);
+            UserResponseDTO userResponseDTO = new UserResponseDTO(token,null);
+            return ResponseEntity.ok(userResponseDTO);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            UserResponseDTO userResponseDTO = new UserResponseDTO(null, e.getMessage());
+            return ResponseEntity.badRequest().body(userResponseDTO);
         }
     }
 }
+
+// Just because having ResponseEntity<?> is not a good coding practise, we will make a UserResponseDTO with params:
+// Id, and error message and return it.
