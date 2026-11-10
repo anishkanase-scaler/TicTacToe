@@ -7,7 +7,6 @@ import com.example.tictactoe.model.Game;
 import com.example.tictactoe.repository.GameRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +21,7 @@ public class GameService {
 
     @Transactional
     public GameResponseDTO createGame(UUID player, int size) {
+        // this player (UUID player) is for sure the logged in, we passed Httpservelet request in controller.
         Game game = new Game(player, size);
         game = gameRepository.save(game);
         return GameResponseDTO.fromEntity(game);
@@ -34,14 +34,21 @@ public class GameService {
     }
 
     @Transactional
-    public GameResponseDTO playMove(UUID gameId, int row, int col, char symbol) {
+    public GameResponseDTO playMove(UUID gameId, int row, int col, char symbol, UUID playerId) {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new IllegalArgumentException("Game not found"));
         GameStatus gameStatus = game.getGameStatus();
         if(gameStatus != GameStatus.IN_PROGRESS) {
             throw new IllegalStateException("Game already over");
         }
+
         if(game.getCurrTurn() != symbol) {
             throw new IllegalArgumentException("It is not "+symbol+ " 's turn");
+        }
+        if(symbol == 'X') {
+            if(!gameRepository.existsByIdAndPx(gameId, playerId)) throw new IllegalArgumentException("Its not your turn or game");
+        }
+        else {
+            if(!gameRepository.existsByIdAndPo(gameId, playerId)) throw new IllegalArgumentException("Its not your turn or game");
         }
         char grid[][] = game.getGrid();
         int boardSize = game.getBoardSize();
@@ -87,6 +94,8 @@ public class GameService {
     }
 
     public List<GameResponseDTO> getAvailableGames(UUID userId) {
+        // this player (UUID player) is for sure the logged in, we passed Httpservelet request in controller.
+        // This function returns all games, which that playerId can join.
         List<Game> games = gameRepository.getAllJoinableGames(userId);
         List<GameResponseDTO> gameResponseDTOS = new ArrayList<>();
         for(Game game : games) {
