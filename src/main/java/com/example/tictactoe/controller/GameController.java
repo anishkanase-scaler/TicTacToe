@@ -18,9 +18,13 @@ import java.util.UUID;
 public class GameController {
     private final GameService gameService;
 
+
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
+
+    // RestController is Controller + Response Body, so we will return everything in form of JSON,
+    // therefore return type is ResponseEntity<Entity>, which will convert Entity to JSON.
 
     @PostMapping
     public ResponseEntity<GameResponseDTO> createGame(@RequestBody GameRequestDTO gameRequestDTO) {
