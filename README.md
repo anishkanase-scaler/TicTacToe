@@ -34,6 +34,23 @@ npm run dev
 
 Then open http://localhost:3000
 
+## Running with Docker
+
+One image contains everything: the API and the React page, both on port 8080.
+
+```bash
+docker build -t tictactoe .
+docker run -p 8080:8080 tictactoe
+```
+
+Then open http://localhost:8080
+
+The build has three stages. The first builds the React app with Node, the second
+builds the jar with Maven, and the third keeps only the jar on a small Java
+runtime image. The React build is copied into `src/main/resources/static` before
+packaging, so it ends up inside the jar and Spring Boot serves it from the
+classpath.
+
 ## API
 
 | Method | Path                          | What it does                        |

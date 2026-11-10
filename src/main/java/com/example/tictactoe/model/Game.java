@@ -45,10 +45,13 @@ public class Game {
 
     public Game() {}
 
-    public Game(int boardSize) {
+    public Game(UUID player, int boardSize) {
         this.boardSize = boardSize;
+        if(player.hashCode() % 2 == 0) this.px = player;
+        else this.po = player;
+
         currTurn = 'X';
-        gameStatus = GameStatus.IN_PROGRESS;
+        gameStatus = GameStatus.CREATED;
         boardState = "_".repeat(boardSize * boardSize);
     }
 
@@ -64,7 +67,7 @@ public class Game {
     }
 
     @Transient
-    public char[][] getGrid() {
+    public char[][] getGrid() { 
         char[][] grid = new char[boardSize][boardSize];
         for(int i = 0; i < boardSize; i++) {
             for(int j = 0; j < boardSize; j++) {

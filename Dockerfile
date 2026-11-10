@@ -23,6 +23,11 @@ RUN ./mvnw dependency:go-offline
 
 COPY src ./src
 
+# Put the React build inside src/main/resources/static BEFORE packaging, so it
+# ends up on the classpath inside the jar. That is the only place Spring Boot
+# looks for static files.
+COPY --from=frontend /app/frontend/dist ./src/main/resources/static
+
 RUN ./mvnw clean package -DskipTests
 
 
@@ -31,10 +36,8 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
+# The jar now contains both the API and the React page.
 COPY --from=backend /app/target/*.jar app.jar
-
-# Copy React build into Spring Boot's static folder
-COPY --from=frontend /app/frontend/dist /app/static
 
 EXPOSE 8080
 

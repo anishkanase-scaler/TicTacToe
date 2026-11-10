@@ -1,5 +1,7 @@
 // All calls to the Spring Boot backend live here.
-const BASE_URL = 'http://localhost:8080/api/games'
+// Relative path, so it works both in dev (Vite proxies it, see vite.config.js)
+// and in Docker (Spring Boot serves the page and the API from the same port).
+const BASE_URL = '/api/games'
 
 // The backend sends { "message": "..." } when something is wrong.
 async function readResponse(response) {

@@ -1,5 +1,6 @@
 package com.example.tictactoe.service;
 
+import com.example.tictactoe.dto.GameRequestDTO;
 import com.example.tictactoe.dto.GameResponseDTO;
 import com.example.tictactoe.enums.GameStatus;
 import com.example.tictactoe.model.Game;
@@ -7,6 +8,8 @@ import com.example.tictactoe.repository.GameRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,8 +21,8 @@ public class GameService {
     }
 
     @Transactional
-    public GameResponseDTO createGame(int size) {
-        Game game = new Game(size);
+    public GameResponseDTO createGame(UUID player, int size) {
+        Game game = new Game(player, size);
         game = gameRepository.save(game);
         return GameResponseDTO.fromEntity(game);
     }
@@ -83,7 +86,43 @@ public class GameService {
         return (rowWin || colWin || mainDiagWin || antiDiagWin);
     }
 
+    public List<GameResponseDTO> getAvailableGames(UUID userId) {
+        List<Game> games = gameRepository.getAllJoinableGames(userId);
+        List<GameResponseDTO> gameResponseDTOS = new ArrayList<>();
+        for(Game game : games) {
+            if(game.getGameStatus() != GameStatus.CREATED) continue;
+            gameResponseDTOS.add(GameResponseDTO.fromEntity(game));
+        }
+        return gameResponseDTOS;
+    }
 
+    public GameResponseDTO setStatusInProgress(UUID gameId) {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new IllegalArgumentException("Game not found"));
+        game.setGameStatus(GameStatus.IN_PROGRESS);
+        game = gameRepository.save(game);
+        return GameResponseDTO.fromEntity(game);
+    }
 
+    public GameResponseDTO joinGame(UUID userId, UUID gameId) {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new IllegalArgumentException("Game not found"));
+        if(game.getGameStatus() != GameStatus.CREATED) {
+            throw new IllegalArgumentException("Game is not joinable");
+        }
 
+        if(game.getPo() != null && game.getPx() != null) {
+            throw new IllegalArgumentException("Board already full");
+        }
+
+        else if(game.getPo() == null && game.getPx() == null) {
+            throw new IllegalArgumentException("No player has created this game");
+        }
+
+        if(game.getPo() == null) game.setPo(userId);
+        else game.setPx(userId);
+
+        game.setGameStatus(GameStatus.IN_PROGRESS);
+
+        game = gameRepository.save(game);
+        return GameResponseDTO.fromEntity(game);
+    }
 }

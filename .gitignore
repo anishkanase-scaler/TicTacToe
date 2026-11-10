@@ -46,3 +46,6 @@ pnpm-debug.log*
 
 ### Local tooling output ###
 .playwright-mcp/
+
+### Frontend build copied in by the Docker build ###
+src/main/resources/static/

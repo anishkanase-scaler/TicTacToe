@@ -1,0 +1,19 @@
+# Never copy host-built dependencies into the image.
+# They are built for macOS and the image is Linux.
+node_modules
+frontend/node_modules
+frontend/dist
+
+# Build output
+target
+
+# Git, IDE, OS junk
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store
+
+# Not needed at runtime
+*.md
+*.sh
